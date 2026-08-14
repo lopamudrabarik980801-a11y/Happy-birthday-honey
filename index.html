@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday My Love!</title>
+  
+  <!-- Google Fonts & Canvas Confetti Library -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #ff4b72;
+      --secondary-color: #ff85a2;
+      --bg-gradient: linear-gradient(135deg, #ffe6ea 0%, #ffc3d0 100%);
+      --card-bg: rgba(255, 255, 255, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    /* Falling Hearts Container */
+    #hearts-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .heart-drop {
+      position: absolute;
+      color: var(--primary-color);
+      animation: drop linear infinite;
+      user-select: none;
+    }
+
+    @keyframes drop {
+      0% { transform: translateY(-10vh) scale(0.5); opacity: 1; }
+      100% { transform: translateY(105vh) scale(1.2); opacity: 0; }
+    }
+
+    /* Section Cards Navigation */
+    .page {
+      display: none;
+      width: 90%;
+      max-width: 550px;
+      background: var(--card-bg);
+      padding: 30px 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      z-index: 10;
+      animation: fadeIn 0.6s ease-out forwards;
+      margin: 20px 0;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, h2, h3 {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    p {
+      margin-bottom: 20px;
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 75, 114, 0.4);
+      transition: all 0.3s ease;
+      margin-top: 15px;
+    }
+
+    .btn:hover {
+      background: #e03a5f;
+      transform: translateY(-2px);
+    }
+
+    /* Page 1: Timer & Wish */
+    #timer {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .timer-box {
+      background: white;
+      padding: 10px;
+      border-radius: 12px;
+      min-width: 65px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .timer-box span {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .timer-box label {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .handwriting {
+      font-family: 'Caveat', cursive;
+      font-size: 2.8rem;
+      color: var(--primary-color);
+      margin: 20px 0;
+      line-height: 1.2;
+    }
+
+    /* Interactive Image Button (Page 2) */
+    .clickable-img-wrapper {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      margin: 20px 0;
+    }
+
+    .clickable-img-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .clickable-img-wrapper:hover img {
+      transform: scale(1.04);
+    }
+
+    .click-hint {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.65);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+
+    /* Quiz Option Buttons */
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .quiz-btn {
+      background: white;
+      border: 2px solid var(--secondary-color);
+      color: #444;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .quiz-btn:hover {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    /* Modal / Popup Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 320px;
+      width: 85%;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-emoji {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    /* Slideshow Component */
+    .slideshow-container {
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 20px 0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      background: #000;
+    }
+
+    .slide-img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      display: none;
+    }
+
+    .slide-img.active {
+      display: block;
+    }
+
+    .slide-counter {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* Paragraph Styling (Page 6) */
+    .wish-paragraph {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 20px;
+      border-radius: 15px;
+      border-left: 4px solid var(--primary-color);
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: #444;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body onclick="startAudio()">
+
+  <!-- Audio Element -->
+  <audio id="bg-audio" loop>
+    <source src="Tum Ho To.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Falling Hearts Animation Container -->
+  <div id="hearts-container"></div>
+
+  <!-- POPUP MODAL -->
+  <div id="popup-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="modal-emoji" class="modal-emoji">😂</div>
+      <h3 id="modal-text">Message</h3>
+      <button class="btn" style="padding: 6px 20px; font-size: 0.9rem;" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- PAGE 1: TIMER & WISH -->
+  <div id="page1" class="page active">
+    <h2>Countdown to Your Special Day! ⏰</h2>
+    <p>Midnight, 15th August is almost here...</p>
+
+    <div id="timer">
+      <div class="timer-box"><span id="hours">00</span><label>Hours</label></div>
+      <div class="timer-box"><span id="minutes">00</span><label>Minutes</label></div>
+      <div class="timer-box"><span id="seconds">00</span><label>Seconds</label></div>
+    </div>
+
+    <div id="birthday-wish" style="display: none;">
+      <div class="handwriting">Happy birthday my love ❤️</div>
+    </div>
+
+    <button id="p1-next-btn" class="btn" style="display: none;" onclick="goToPage(2)">
+      Get ready for the surprise ✨
+    </button>
+  </div>
+
+  <!-- PAGE 2: MEMORIES INTRO -->
+  <div id="page2" class="page">
+    <h2>Let's go back to some memories 📸</h2>
+    <p>Click on our photo to play a fun game!</p>
+
+    <div class="clickable-img-wrapper" onclick="goToPage(3)">
+      <img src="Zero.jpg" alt="Our Memory" onerror="this.src='https://via.placeholder.com/400x300?text=Zero.jpg+Not+Found'">
+      <div class="click-hint">Tap photo to play 💖</div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: QUIZ 1 -->
+  <div id="page3" class="page">
+    <h2>Question 1 💭</h2>
+    <p style="font-weight: 600;">How much do I love you?</p>
+
+    <div class="quiz-options">
+      <button class="quiz-btn" onclick="triggerLaugh('🤣', 'Haha nice try!')">I. More than gupchup</button>
+      <button class="quiz-btn" onclick="triggerLaugh('😜', 'Momo lover alert!')">II. More than momo</button>
+      <button class="quiz-btn" onclick="triggerLaugh('😆', 'Calculating food math...')">III. More than gupchup but less than momo</button>
+      <button class="quiz-btn" onclick="triggerLaugh('😹', 'Biryani wins always?')">IV. More than momo but less than Biryani</button>
+    </div>
+
+    <button class="btn" onclick="goToPage(4)">Next Question ➡️</button>
+  </div>
+
+  <!-- PAGE 4: QUIZ 1 REVEAL -->
+  <div id="page4" class="page">
+    <h2>The Real Answer 🤫</h2>
+    <div style="background: white; padding: 20px; border-radius: 15px; border: 2px dashed var(--primary-color); margin: 20px 0;">
+      <p style="font-size: 1.15rem; font-weight: 600; color: var(--primary-color); margin-bottom: 0;">
+        "I love you more than any food... You are my happiness, you are my punching bag, you are my world 🌍"
+      </p>
+    </div>
+
+    <button class="btn" onclick="goToPage(5)">Next Question ➡️</button>
+  </div>
+
+  <!-- PAGE 5: QUIZ 2 -->
+  <div id="page5" class="page">
+    <h2>Question 2 🎁</h2>
+    <p style="font-weight: 600;">On your birthday what do you want as a gift?</p>
+
+    <div class="quiz-options">
+      <button class="quiz-btn" onclick="showModal('👶', 'Chhoti Bacchi Ho Kya')">I. Toy Bike/car</button>
+      <button class="quiz-btn" onclick="showModal('💸', '5k ra kinilu au kete darkar!')">II. T shirt</button>
+      <button class="quiz-btn" onclick="showModal('👃', 'Tate perfume darkar nai')">III. Man\'s perfume</button>
+      <button class="quiz-btn" onclick="showModal('😉', 'To size jana nahin')">IV. Shoe</button>
+    </div>
+
+    <button class="btn" onclick="goToPage(6)">Walk Down Memory Lane 📸</button>
+  </div>
+
+  <!-- PAGE 6: MEMORY LANE & WISHES -->
+  <div id="page6" class="page">
+    <h2>Memory Lane 🎞️</h2>
+    <p>Tap the image to see our special moments!</p>
+
+    <div class="slideshow-container" onclick="nextSlide()">
+      <img class="slide-img active" src="One.jpg" alt="Memory 1" onerror="this.src='https://via.placeholder.com/400x300?text=One.jpg'">
+      <img class="slide-img" src="Two.jpg" alt="Memory 2" onerror="this.src='https://via.placeholder.com/400x300?text=Two.jpg'">
+      <img class="slide-img" src="Three.jpg" alt="Memory 3" onerror="this.src='https://via.placeholder.com/400x300?text=Three.jpg'">
+      <img class="slide-img" src="Four.jpg" alt="Memory 4" onerror="this.src='https://via.placeholder.com/400x300?text=Four.jpg'">
+    </div>
+    <div id="slide-counter" class="slide-counter">Photo 1 of 4 (Click photo to next)</div>
+
+    <div class="wish-paragraph">
+      Happy Birthday, my love! ❤️<br><br>
+      On your special day, I wish you all the success, happiness, and joy in the world. May you get everything your heart truly desires. 
+      I wish that one day you marry me, and we get to celebrate each other's birthdays just like this every single year... until we both turn very, very, very old! 👵👴<br><br>
+      *(Unless, of course, you forget my birthday again! 😜)*
+    </div>
+  </div>
+
+  <script>
+    // Audio Autoplay Handler
+    let audioStarted = false;
+    function startAudio() {
+      if (!audioStarted) {
+        const audio = document.getElementById('bg-audio');
+        audio.play().catch(e => console.log("Audio play blocked until interaction"));
+        audioStarted = true;
+      }
+    }
+
+    // Falling Hearts Creation
+    function createHearts() {
+      const container = document.getElementById('hearts-container');
+      const heartSymbols = ['❤️', '💖', '💕', '💗', '🌸'];
+      
+      for (let i = 0; i < 25; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart-drop';
+        heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        heart.style.animationDelay = (Math.random() * 5) + 's';
+        heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+        container.appendChild(heart);
+      }
+    }
+    createHearts();
+
+    // Confetti Helper
+    function launchConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+
+    // Page Navigation
+    function goToPage(pageNum) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      const targetPage = document.getElementById('page' + pageNum);
+      targetPage.classList.add('active');
+      window.scrollTo(0, 0);
+
+      // Trigger blast on page 4 reveal
+      if (pageNum === 4) {
+        launchConfetti();
+      }
+    }
+
+    // Countdown Timer logic targetting 12 AM, 15th August
+    function startTimer() {
+      const now = new Date();
+      let targetYear = now.getFullYear();
+      
+      // Target: August 15, 00:00:00
+      let targetDate = new Date(targetYear, 7, 15, 0, 0, 0);
+
+      // If Aug 15 of this year has already passed, set target to next year's Aug 15
+      if (now > targetDate) {
+        targetDate = new Date(targetYear + 1, 7, 15, 0, 0, 0);
+      }
+
+      // Initial celebration trigger on load
+      launchConfetti();
+
+      const timerInterval = setInterval(() => {
+        const current = new Date().getTime();
+        const distance = targetDate.getTime() - current;
+
+        if (distance <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('timer').style.display = 'none';
+          document.getElementById('birthday-wish').style.display = 'block';
+          document.getElementById('p1-next-btn').style.display = 'inline-block';
+          launchConfetti();
+        } else {
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+          document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+          document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+
+          // Always show next button so testing can continue
+          document.getElementById('p1-next-btn').style.display = 'inline-block';
+        }
+      }, 1000);
+    }
+    startTimer();
+
+    // Modal / Popup functions
+    function showModal(emoji, text) {
+      document.getElementById('modal-emoji').innerText = emoji;
+      document.getElementById('modal-text').innerText = text;
+      document.getElementById('popup-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('popup-modal').style.display = 'none';
+    }
+
+    function triggerLaugh(emoji, text) {
+      const faces = ['🤣', '😂', '😹', '😆', '😜'];
+      const randomEmoji = faces[Math.floor(Math.random() * faces.length)];
+      showModal(randomEmoji, text);
+    }
+
+    // Slideshow Logic
+    let currentSlide = 0;
+    function nextSlide() {
+      const slides = document.querySelectorAll('.slide-img');
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+      document.getElementById('slide-counter').innerText = `Photo ${currentSlide + 1} of ${slides.length} (Click photo to next)`;
+    }
+  </script>
+</body>
+</html>
