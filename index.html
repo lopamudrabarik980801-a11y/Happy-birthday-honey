@@ -415,8 +415,8 @@
     </div>
 
     <!-- Kiss Emoji Button -->
-    <button class="btn kiss-btn" onclick="sendKiss()">Click for a Kiss 😘</button>
-  </div>
+    <button class="btn" onclick="triggerKiss()">Click for a special kiss 💋</button>
+</div>
 
   <script>
     // Audio Autoplay Handler
@@ -530,8 +530,13 @@
       showModal(randomEmoji, text);
     }
 
-    // Kiss Popup Function
-    function sendKiss() {
+    // Flying Kiss Animation
+    function triggerKiss() {
+      const kiss = document.getElementById('kiss-emoji');
+      kiss.classList.remove('animate');
+      void kiss.offsetWidth; // Trigger reflow
+      kiss.classList.add('animate');
+   
       showModal('😘💋', 'Sending you endless kisses on your birthday! Love you soooooo much! ❤️');
       launchConfetti();
     }
