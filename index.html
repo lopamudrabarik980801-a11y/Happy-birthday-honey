@@ -112,6 +112,18 @@
       transform: translateY(-2px);
     }
 
+    .kiss-btn {
+      background: linear-gradient(45deg, #ff4b72, #ff85a2);
+      font-size: 1.1rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
     /* Page 1: Timer & Wish */
     #timer {
       display: flex;
@@ -234,7 +246,7 @@
     }
 
     .modal-emoji {
-      font-size: 3rem;
+      font-size: 3.5rem;
       margin-bottom: 10px;
     }
 
@@ -246,6 +258,7 @@
       margin: 20px 0;
       box-shadow: 0 6px 20px rgba(0,0,0,0.15);
       background: #000;
+      cursor: pointer;
     }
 
     .slide-img {
@@ -265,17 +278,19 @@
       color: #666;
     }
 
-    /* Paragraph Styling (Page 6) */
+    /* Letter Box Styling (Page 7) */
     .wish-paragraph {
       text-align: left;
-      background: rgba(255, 255, 255, 0.6);
-      padding: 20px;
+      background: #fffafb;
+      padding: 25px;
       border-radius: 15px;
-      border-left: 4px solid var(--primary-color);
-      font-size: 0.98rem;
+      border: 2px dashed var(--secondary-color);
+      border-left: 5px solid var(--primary-color);
+      font-size: 1rem;
       line-height: 1.8;
       color: #444;
-      margin-bottom: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
   </style>
 </head>
@@ -372,137 +387,48 @@
     <button class="btn" onclick="goToPage(6)">Walk Down Memory Lane 📸</button>
   </div>
 
-   <!-- PAGE 6: Memory Lane Slideshow -->
+  <!-- PAGE 6: MEMORY LANE (PHOTO SLIDESHOW ONLY) -->
   <div id="page6" class="page">
     <h2>Memory Lane 🎞️</h2>
-    <p>Click the image to view the next memory!</p>
-    <div class="img-container" onclick="nextSlide()">
-      <img id="slideshow-img" src="One.jpg" alt="Memory Lane" />
+    <p>Tap the image to see our special moments!</p>
+
+    <div class="slideshow-container" onclick="nextSlide()">
+      <img class="slide-img active" src="One.jpg" alt="Memory 1" onerror="this.src='https://via.placeholder.com/400x300?text=One.jpg'">
+      <img class="slide-img" src="Two.jpg" alt="Memory 2" onerror="this.src='https://via.placeholder.com/400x300?text=Two.jpg'">
+      <img class="slide-img" src="Three.jpg" alt="Memory 3" onerror="this.src='https://via.placeholder.com/400x300?text=Three.jpg'">
+      <img class="slide-img" src="Four.jpg" alt="Memory 4" onerror="this.src='https://via.placeholder.com/400x300?text=Four.jpg'">
     </div>
-    <button class="btn" onclick="nextPage(7)">Open my letter 💌</button>
+    <div id="slide-counter" class="slide-counter">Photo 1 of 4 (Click photo to next)</div>
+
+    <button class="btn" style="margin-top: 25px;" onclick="goToPage(7)">Read My Letter 💌</button>
   </div>
 
-  <!-- PAGE 7: Birthday Letter & Kiss -->
+  <!-- PAGE 7: SEPARATE LETTER PAGE -->
   <div id="page7" class="page">
-    <h2>Happy Birthday My Everything ❤️</h2>
-    <div class="letter">
-      <p>My Dearest,</p>
-      <p>I wish you all the success in the world and hope you get every single thing your heart truly desires. You deserve nothing less than absolute happiness.</p>
-      <p>I wish you marry me so we get to celebrate each other's birthdays like this every year until we both turn very, very, very old... (unless you forget my birthday again! 😜).</p>
-      <p>With all my love forever and always!</p>
+    <h2>A Special Letter For You 💌</h2>
+
+    <div class="wish-paragraph">
+      Happy Birthday, my love! ❤️<br><br>
+      On your special day, I wish you all the success, happiness, and joy in the world. May you get everything your heart truly desires. 
+      I wish that one day you marry me, and we get to celebrate each other's birthdays just like this every single year... until we both turn very, very, very old! 👵👴<br><br>
+      *(Unless, of course, you forget my birthday again! 😜)*
     </div>
-    <button class="btn" onclick="triggerKiss()">Click for a special kiss 💋</button>
+
+    <!-- Kiss Emoji Button -->
+    <button class="btn kiss-btn" onclick="sendKiss()">Click for a Kiss 😘</button>
   </div>
 
   <script>
-    // Audio Autoplay Handler (Triggered on first interaction anywhere)
-    const bgMusic = document.getElementById('bg-music');
+    // Audio Autoplay Handler
     let audioStarted = false;
-
-    document.addEventListener('click', () => {
+    function startAudio() {
       if (!audioStarted) {
-        bgMusic.play().catch(() => console.log("Audio play blocked by browser."));
+        const audio = document.getElementById('bg-audio');
+        audio.play().catch(e => console.log("Audio play blocked until interaction"));
         audioStarted = true;
       }
-    });
-
-    // Background Dropping Hearts
-    function createHearts() {
-      const heartCount = 15;
-      for (let i = 0; i < heartCount; i++) {
-        const heart = document.createElement('div');
-        heart.classList.add('heart-bg');
-        heart.innerHTML = '❤️';
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
-        heart.style.animationDelay = Math.random() * 5 + 's';
-        document.body.appendChild(heart);
-      }
-    }
-    createHearts();
-
-    // Trigger Confetti
-    function fireConfetti() {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }
-    // Fire initial confetti on load
-    window.onload = () => fireConfetti();
-
-    // Page Navigation
-    function nextPage(pageNum) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const targetPage = document.getElementById(`page${pageNum}`);
-      targetPage.classList.add('active');
-
-      // Heart blast on Page 4 (Hidden answer reveal)
-      if (pageNum === 4) {
-        confetti({
-          particleCount: 80,
-          spread: 100,
-          shapes: ['circle'],
-          colors: ['#ff4d6d', '#ff758f', '#ffb3c1']
-        });
-      }
     }
 
-    // Countdown Timer (15th August 00:00:00)
-    function startTimer() {
-      const currentYear = new Date().getFullYear();
-      // August is month index 7 (0-indexed)
-      let targetDate = new Date(currentYear, 7, 15, 0, 0, 0).getTime();
-
-      const timerInterval = setInterval(() => {
-        const now = new Date().getTime();
-        const difference = targetDate - now;
-
-        if (difference <= 0) {
-          clearInterval(timerInterval);
-          document.getElementById('timer').style.display = 'none';
-          document.getElementById('bday-popup').style.display = 'block';
-          fireConfetti();
-          return;
-        }
-
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        document.getElementById('days').innerText = String(days).padStart(2, '0');
-        document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-        document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-        document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
-      }, 1000);
-    }
-    startTimer();
-
-    // Show Pop Responses for Quizzes
-    function showPop(pageNum, message) {
-      const targetEl = document.getElementById(`pop-q${pageNum === 3 ? 1 : 2}`);
-      targetEl.innerText = message;
-    }
-
-    // Memory Lane Slideshow Logic
-    const slides = ['One.jpg', 'Two.jpg', 'Three.jpg', 'Four.jpg'];
-    let currentSlide = 0;
-
-    function nextSlide() {
-      currentSlide = (currentSlide + 1) % slides.length;
-      document.getElementById('slideshow-img').src = slides[currentSlide];
-    }
-
-    // Flying Kiss Animation
-    function triggerKiss() {
-      const kiss = document.getElementById('kiss-emoji');
-      kiss.classList.remove('animate');
-      void kiss.offsetWidth; // Trigger reflow
-      kiss.classList.add('animate');
-    }
-  
     // Falling Hearts Creation
     function createHearts() {
       const container = document.getElementById('hearts-container');
@@ -602,6 +528,12 @@
       const faces = ['🤣', '😂', '😹', '😆', '😜'];
       const randomEmoji = faces[Math.floor(Math.random() * faces.length)];
       showModal(randomEmoji, text);
+    }
+
+    // Kiss Popup Function
+    function sendKiss() {
+      showModal('😘💋', 'Sending you endless kisses on your birthday! Love you standard! ❤️');
+      launchConfetti();
     }
 
     // Slideshow Logic
