@@ -250,6 +250,46 @@
       margin-bottom: 10px;
     }
 
+    /* Zoom-In Kiss Overlay */
+    #zoom-kiss-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255, 230, 234, 0.7);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .zoom-kiss-emoji {
+      font-size: 15rem;
+      animation: zoomKissAnim 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes zoomKissAnim {
+      0% {
+        transform: scale(0.1) rotate(-20deg);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.3) rotate(10deg);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2.5) rotate(0deg);
+        opacity: 0;
+      }
+    }
+
     /* Slideshow Component */
     .slideshow-container {
       position: relative;
@@ -304,6 +344,11 @@
 
   <!-- Falling Hearts Animation Container -->
   <div id="hearts-container"></div>
+
+  <!-- ZOOM-IN KISS OVERLAY -->
+  <div id="zoom-kiss-container">
+    <div id="zoom-kiss-emoji" class="zoom-kiss-emoji">😘</div>
+  </div>
 
   <!-- POPUP MODAL -->
   <div id="popup-modal" class="modal-overlay">
@@ -415,8 +460,8 @@
     </div>
 
     <!-- Kiss Emoji Button -->
-    <button class="btn" onclick="triggerKiss()">Click for a special kiss 💋</button>
-</div>
+    <button class="btn kiss-btn" onclick="sendKiss()">Click for a Kiss 😘</button>
+  </div>
 
   <script>
     // Audio Autoplay Handler
@@ -530,15 +575,23 @@
       showModal(randomEmoji, text);
     }
 
-    // Flying Kiss Animation
-    function triggerKiss() {
-      const kiss = document.getElementById('kiss-emoji');
-      kiss.classList.remove('animate');
-      void kiss.offsetWidth; // Trigger reflow
-      kiss.classList.add('animate');
-   
-      showModal('😘💋', 'Sending you endless kisses on your birthday! Love you soooooo much! ❤️');
-      launchConfetti();
+    // Updated Kiss Function with Zoom Animation
+    function sendKiss() {
+      const zoomContainer = document.getElementById('zoom-kiss-container');
+      const zoomEmoji = document.getElementById('zoom-kiss-emoji');
+      
+      // Reset animation
+      zoomContainer.style.display = 'flex';
+      zoomEmoji.style.animation = 'none';
+      void zoomEmoji.offsetWidth; // Trigger reflow
+      zoomEmoji.style.animation = 'zoomKissAnim 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+
+      // After zoom completes, show final modal and confetti
+      setTimeout(() => {
+        zoomContainer.style.display = 'none';
+        showModal('😘💋', 'MWAHHH! Sending you the biggest birthday kiss! I love you so much! ❤️✨');
+        launchConfetti();
+      }, 1100);
     }
 
     // Slideshow Logic
