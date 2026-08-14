@@ -14,7 +14,7 @@
       --primary-color: #ff4b72;
       --secondary-color: #ff85a2;
       --bg-gradient: linear-gradient(135deg, #ffe6ea 0%, #ffc3d0 100%);
-      --card-bg: rgba(255, 255, 255, 0.9);
+      --card-bg: rgba(255, 255, 255, 0.95);
     }
 
     * {
@@ -81,7 +81,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    h1, h2, h3 {
+    h2 {
       color: var(--primary-color);
       margin-bottom: 15px;
     }
@@ -160,7 +160,7 @@
       line-height: 1.2;
     }
 
-    /* Interactive Image Button (Page 2) */
+    /* Interactive Image Wrapper */
     .clickable-img-wrapper {
       position: relative;
       cursor: pointer;
@@ -254,10 +254,8 @@
     #zoom-kiss-container {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: rgba(255, 230, 234, 0.7);
       backdrop-filter: blur(4px);
       justify-content: center;
@@ -267,27 +265,18 @@
     }
 
     .zoom-kiss-emoji {
-      font-size: 15rem;
+      font-size: 12rem;
+    }
+
+    .zoom-active {
       animation: zoomKissAnim 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
     @keyframes zoomKissAnim {
-      0% {
-        transform: scale(0.1) rotate(-20deg);
-        opacity: 0;
-      }
-      60% {
-        transform: scale(1.3) rotate(10deg);
-        opacity: 1;
-      }
-      80% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(2.5) rotate(0deg);
-        opacity: 0;
-      }
+      0% { transform: scale(0.1) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+      80% { transform: scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: scale(2.5) rotate(0deg); opacity: 0; }
     }
 
     /* Slideshow Component */
@@ -334,12 +323,11 @@
     }
   </style>
 </head>
-<body onclick="startAudio()">
+<body>
 
   <!-- Audio Element -->
-  <audio id="bg-audio" loop>
+  <audio id="bg-audio" loop preload="auto">
     <source src="Tum Ho To.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
   </audio>
 
   <!-- Falling Hearts Animation Container -->
@@ -374,7 +362,7 @@
       <div class="handwriting">Happy birthday my love ❤️</div>
     </div>
 
-    <button id="p1-next-btn" class="btn" style="display: none;" onclick="goToPage(2)">
+    <button id="p1-next-btn" class="btn" onclick="goToPage(2)">
       Get ready for the surprise ✨
     </button>
   </div>
@@ -385,7 +373,7 @@
     <p>Click on our photo to play a fun game!</p>
 
     <div class="clickable-img-wrapper" onclick="goToPage(3)">
-      <img src="Zero.jpg" alt="Our Memory" onerror="this.src='https://via.placeholder.com/400x300?text=Zero.jpg+Not+Found'">
+      <img src="Zero.jpg" alt="Our Memory" onerror="this.src='https://via.placeholder.com/400x300?text=Zero.jpg'">
       <div class="click-hint">Tap photo to play 💖</div>
     </div>
   </div>
@@ -464,21 +452,18 @@
   </div>
 
   <script>
-    // Audio Autoplay Handler
-    let audioStarted = false;
+    // Global Functions needed for inline onclick handlers
     function startAudio() {
-      if (!audioStarted) {
-        const audio = document.getElementById('bg-audio');
-        audio.play().catch(e => console.log("Audio play blocked until interaction"));
-        audioStarted = true;
+      const audio = document.getElementById('bg-audio');
+      if (audio) {
+        audio.play().catch(() => {});
       }
     }
 
-    // Falling Hearts Creation
     function createHearts() {
       const container = document.getElementById('hearts-container');
+      if (!container) return;
       const heartSymbols = ['❤️', '💖', '💕', '💗', '🌸'];
-      
       for (let i = 0; i < 25; i++) {
         const heart = document.createElement('div');
         heart.className = 'heart-drop';
@@ -490,9 +475,7 @@
         container.appendChild(heart);
       }
     }
-    createHearts();
 
-    // Confetti Helper
     function launchConfetti() {
       if (typeof confetti === 'function') {
         confetti({
@@ -503,62 +486,19 @@
       }
     }
 
-    // Page Navigation
     function goToPage(pageNum) {
       document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
       const targetPage = document.getElementById('page' + pageNum);
-      targetPage.classList.add('active');
+      if (targetPage) {
+        targetPage.classList.add('active');
+      }
       window.scrollTo(0, 0);
 
-      // Trigger blast on page 4 reveal
       if (pageNum === 4) {
         launchConfetti();
       }
     }
 
-    // Countdown Timer logic targetting 12 AM, 15th August
-    function startTimer() {
-      const now = new Date();
-      let targetYear = now.getFullYear();
-      
-      // Target: August 15, 00:00:00
-      let targetDate = new Date(targetYear, 7, 15, 0, 0, 0);
-
-      // If Aug 15 of this year has already passed, set target to next year's Aug 15
-      if (now > targetDate) {
-        targetDate = new Date(targetYear + 1, 7, 15, 0, 0, 0);
-      }
-
-      // Initial celebration trigger on load
-      launchConfetti();
-
-      const timerInterval = setInterval(() => {
-        const current = new Date().getTime();
-        const distance = targetDate.getTime() - current;
-
-        if (distance <= 0) {
-          clearInterval(timerInterval);
-          document.getElementById('timer').style.display = 'none';
-          document.getElementById('birthday-wish').style.display = 'block';
-          document.getElementById('p1-next-btn').style.display = 'inline-block';
-          launchConfetti();
-        } else {
-          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-          document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-          document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-          document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
-
-          // Always show next button so testing can continue
-          document.getElementById('p1-next-btn').style.display = 'inline-block';
-        }
-      }, 1000);
-    }
-    startTimer();
-
-    // Modal / Popup functions
     function showModal(emoji, text) {
       document.getElementById('modal-emoji').innerText = emoji;
       document.getElementById('modal-text').innerText = text;
@@ -575,18 +515,15 @@
       showModal(randomEmoji, text);
     }
 
-    // Updated Kiss Function with Zoom Animation
     function sendKiss() {
       const zoomContainer = document.getElementById('zoom-kiss-container');
       const zoomEmoji = document.getElementById('zoom-kiss-emoji');
       
-      // Reset animation
       zoomContainer.style.display = 'flex';
-      zoomEmoji.style.animation = 'none';
-      void zoomEmoji.offsetWidth; // Trigger reflow
-      zoomEmoji.style.animation = 'zoomKissAnim 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+      zoomEmoji.classList.remove('zoom-active');
+      void zoomEmoji.offsetWidth; // force reflow
+      zoomEmoji.classList.add('zoom-active');
 
-      // After zoom completes, show final modal and confetti
       setTimeout(() => {
         zoomContainer.style.display = 'none';
         showModal('😘💋', 'MWAHHH! Sending you the biggest birthday kiss! I love you so much! ❤️✨');
@@ -594,15 +531,50 @@
       }, 1100);
     }
 
-    // Slideshow Logic
     let currentSlide = 0;
     function nextSlide() {
       const slides = document.querySelectorAll('.slide-img');
+      if (slides.length === 0) return;
       slides[currentSlide].classList.remove('active');
       currentSlide = (currentSlide + 1) % slides.length;
       slides[currentSlide].classList.add('active');
       document.getElementById('slide-counter').innerText = `Photo ${currentSlide + 1} of ${slides.length} (Click photo to next)`;
     }
+
+    function startTimer() {
+      const now = new Date();
+      let targetYear = now.getFullYear();
+      let targetDate = new Date(targetYear, 7, 15, 0, 0, 0);
+
+      if (now > targetDate) {
+        targetDate = new Date(targetYear + 1, 7, 15, 0, 0, 0);
+      }
+
+      setInterval(() => {
+        const current = new Date().getTime();
+        const distance = targetDate.getTime() - current;
+
+        if (distance <= 0) {
+          document.getElementById('timer').style.display = 'none';
+          document.getElementById('birthday-wish').style.display = 'block';
+        } else {
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+          document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+          document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+      }, 1000);
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      createHearts();
+      startTimer();
+      document.body.addEventListener('click', startAudio, { once: true });
+    });
   </script>
 </body>
 </html>
